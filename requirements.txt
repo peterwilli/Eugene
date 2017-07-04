@@ -15,6 +15,7 @@ jupyter==1.0.0
 jupyter-client==5.1.0
 jupyter-console==5.1.0
 jupyter-core==4.3.0
+jupytercontrib==0.0.6
 Keras==2.0.5
 Markdown==2.6.8
 MarkupSafe==1.0
@@ -34,7 +35,9 @@ python-dateutil==2.6.0
 PyYAML==3.12
 pyzmq==16.0.2
 qtconsole==4.3.0
+recurrentshop==1.0.0
 scipy==0.19.1
+seq2seq==1.0.0
 simplegeneric==0.8.1
 six==1.10.0
 tensorflow==1.2.1
