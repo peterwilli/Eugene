@@ -29,6 +29,8 @@ from six.moves import urllib
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
 
+data_index = 0
+
 def build_dataset(words):
   """Process raw inputs into a dataset."""
   count = [['UNK', -1]]
@@ -50,7 +52,7 @@ def build_dataset(words):
   return data, count, dictionary, reversed_dictionary
 
 # Step 3: Function to generate a training batch for the skip-gram model.
-def generate_batch(batch_size, num_skips, skip_window):
+def generate_batch(batch_size, num_skips, skip_window, data):
   global data_index
   assert batch_size % num_skips == 0
   assert num_skips <= 2 * skip_window
@@ -96,12 +98,12 @@ def plot_with_labels(low_dim_embs, labels, filename='tsne.png'):
 
 def init_w2v(vocabulary):
     data, count, dictionary, reverse_dictionary = build_dataset(vocabulary)
+    vocabulary_size = len(dictionary)
 
     print('Most common words (+UNK)', count[:5])
     print('Sample data', data[:10], [reverse_dictionary[i] for i in data[:10]])
 
-    data_index = 0
-    batch, labels = generate_batch(batch_size=8, num_skips=2, skip_window=1)
+    batch, labels = generate_batch(batch_size=8, num_skips=2, skip_window=1, data=data)
     for i in range(8):
       print(batch[i], reverse_dictionary[batch[i]],
             '->', labels[i, 0], reverse_dictionary[labels[i, 0]])
@@ -175,7 +177,7 @@ def init_w2v(vocabulary):
       average_loss = 0
       for step in xrange(num_steps):
         batch_inputs, batch_labels = generate_batch(
-            batch_size, num_skips, skip_window)
+            batch_size, num_skips, skip_window, data=data)
         feed_dict = {train_inputs: batch_inputs, train_labels: batch_labels}
 
         # We perform one update step by evaluating the optimizer op (including it
