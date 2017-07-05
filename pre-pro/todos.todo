@@ -1,3 +1,4 @@
 #Python ML
 ✔ Update vectorize_stories to work with just 2 text pairs @done(2017-07-05 00:38)
-☐ Figure out what's wrong with sample on query() and seq2seq model
+✔ Figure out what's wrong with sample on query() and seq2seq model @done(2017-07-05 02:00)
+☐ Implement sample() function to create text predictions
