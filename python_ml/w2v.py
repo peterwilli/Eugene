@@ -81,7 +81,7 @@ def generate_batch(batch_size, num_skips, skip_window, data):
 # Step 6: Visualize the embeddings.
 
 
-def plot_with_labels(low_dim_embs, labels, filename='tsne.png'):
+def plot_with_labels(plt, low_dim_embs, labels, filename='tsne.png'):
   assert low_dim_embs.shape[0] >= len(labels), 'More labels than embeddings'
   plt.figure(figsize=(18, 18))  # in inches
   for i, label in enumerate(labels):
@@ -94,9 +94,23 @@ def plot_with_labels(low_dim_embs, labels, filename='tsne.png'):
                  ha='right',
                  va='bottom')
 
-  plt.savefig(filename)
+  return plt
 
-def init_w2v(vocabulary):
+def visualize(final_embeddings, reverse_dictionary):
+    try:
+      # pylint: disable=g-import-not-at-top
+      from sklearn.manifold import TSNE
+      import matplotlib.pyplot as plt
+
+      tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000)
+      plot_only = min(500, len(reverse_dictionary))
+      low_dim_embs = tsne.fit_transform(final_embeddings[:plot_only, :])
+      labels = [reverse_dictionary[i] for i in xrange(plot_only)]
+      return plot_with_labels(plt, low_dim_embs, labels)
+    except ImportError:
+        print('Please install sklearn, matplotlib, and scipy to show embeddings.')
+
+def init_w2v(vocabulary, num_steps):
     data, count, dictionary, reverse_dictionary = build_dataset(vocabulary)
     vocabulary_size = len(dictionary)
 
@@ -167,8 +181,6 @@ def init_w2v(vocabulary):
       init = tf.global_variables_initializer()
 
     # Step 5: Begin training.
-    num_steps = 100001
-
     with tf.Session(graph=graph) as session:
       # We must initialize all variables before we use them.
       init.run()
@@ -205,17 +217,4 @@ def init_w2v(vocabulary):
               log_str = '%s %s,' % (log_str, close_word)
             print(log_str)
       final_embeddings = normalized_embeddings.eval()
-
-
-    try:
-      # pylint: disable=g-import-not-at-top
-      from sklearn.manifold import TSNE
-      import matplotlib.pyplot as plt
-
-      tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000)
-      plot_only = 500
-      low_dim_embs = tsne.fit_transform(final_embeddings[:plot_only, :])
-      labels = [reverse_dictionary[i] for i in xrange(plot_only)]
-      plot_with_labels(low_dim_embs, labels)
-    except ImportError:
-        print('Please install sklearn, matplotlib, and scipy to show embeddings.')
+    return final_embeddings, data, count, dictionary, reverse_dictionary
